@@ -1,0 +1,27 @@
+name: CI - Tests HTML
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+      
+      - name: Installation de l'outil de validation HTML
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tidy
+      
+      - name: Validation HTML
+        run: |
+          echo "🔍 Validation du fichier HTML..."
+          tidy -q -e index.html
+          
+      - name: Tests de syntaxe réussis
+        run: |
+          echo "✅ Tous les tests HTML sont passés avec succès !"
