@@ -1,0 +1,37 @@
+name: CD - Deploy GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["CI - Tests HTML"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    # ⚠️ Condition CRITIQUE : ne déploie que si CI réussit
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+      
+      - name: Configuration GitHub Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      
+      - name: Déploiement sur GitHub Pages
+        uses: actions/deploy-pages@v4
+        
+      - name: Confirmation
+        run: |
+          echo "✅ Site déployé sur GitHub Pages avec succès !"
