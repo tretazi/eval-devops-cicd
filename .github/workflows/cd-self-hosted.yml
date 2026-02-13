@@ -1,0 +1,40 @@
+name: CD - Deploy Self-Hosted
+
+on:
+  workflow_run:
+    workflows: ["CI - Tests HTML"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    # ⚠️ Condition CRITIQUE : ne déploie que si CI réussit
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, linux, x64]
+    
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+      
+      - name: Déploiement sur le serveur Nginx
+        run: |
+          echo "🚀 Déploiement du site sur le serveur..."
+          sudo cp -f index.html /var/www/devops-eval/
+          echo "✅ Fichier index.html copié dans /var/www/devops-eval/"
+      
+      - name: Vérification du déploiement
+        run: |
+          echo "🔍 Vérification du déploiement..."
+          if curl -s http://localhost | grep -q "TP DevOps"; then
+            echo "✅ Site accessible et fonctionnel !"
+          else
+            echo "❌ Erreur : le site n'est pas accessible"
+            exit 1
+          fi
+      
+      - name: Affichage des informations
+        run: |
+          echo "📊 Informations du serveur :"
+          echo "Hostname: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Date: $(date)"
